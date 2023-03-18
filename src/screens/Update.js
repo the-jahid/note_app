@@ -3,44 +3,48 @@ import React, { useState } from 'react'
 import Input from '../components/Input'
 import RadioInput from '../components/RadioInput'
 import Button from '../components/Button'
-import { addDoc, collection } from 'firebase/firestore'
+import { addDoc, collection, doc, updateDoc } from 'firebase/firestore'
 import { db } from '../../firebase.init'
 
-const Create = ({navigation, route, user}) => {
-
+const Update = ({navigation, route, user}) => {
+  const noteItems = route.params.item;
   const noteColorOptions = ['red', 'blue', 'green']
   const [loading, setLoading] = React.useState(false)
-  const [title, setTitle] = useState()
-  const [desCription, setDescription] = useState()
+  const [title, setTitle] = useState(noteItems.title)
+  const [desCription, setDescription] = useState(noteItems.desCription)
   const [noteColor, setNoteCOlor] = useState('blue')
 
+ 
+  const onpressUpdate = async () => {
 
-  const onpressCreate = async () => {
+    const noteRef = doc(db, 'notes', noteItems.id)
+
     setLoading(true)
-     try {
-      const docRef = await addDoc(collection(db, 'notes') , {
+    try {
+       await updateDoc(doc(db, "notes", noteItems.id) , {
         title:title,
         desCription:desCription,
-        color:noteColor,
-        uid:user.uid
-    })
-    setLoading(false)
-     } catch (error) {
-      console.log(error)
-      setLoading(false)
-     }
+        color:noteColor
+       })
+        setLoading(false)
+    } catch (error) {
+
+        setLoading(false)
+    }
   }
 
   return (
     <View style={{marginHorizontal:20, flex:1}}>
       <Input
-      placeholder={'Title'}
-      onChangeText={(text) => setTitle(text) }
+        placeholder={'Title'}
+        onChangeText={(text) => setTitle(text)}
+        value={title}
       />
       <Input
         placeholder={'Description'}
         onChangeText={(text) => setDescription(text)}
         multiline={true}
+        value={desCription}
       />
 
       <View>
@@ -61,12 +65,12 @@ const Create = ({navigation, route, user}) => {
      { loading ? <Text>I am loading</Text> : <Button 
       title={'Submit'}
       customStyles={{marginTop:25, alignSelf:'center', marginTop:60, width:'100%'}}
-      onPress={onpressCreate}
+      onPress={onpressUpdate}
       />  }
     </View>
   )
 }
 
-export default Create
+export default Update
 
 const styles = StyleSheet.create({})

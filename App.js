@@ -1,28 +1,15 @@
-
-import { StatusBar, StyleSheet, Text, View } from 'react-native';
+import { StatusBar, StyleSheet, Text } from 'react-native';
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Home from './src/screens/Home';
 import Sign_in from './src/screens/Sign_in';
 import Sign_up from './src/screens/Sign_up';
-import Edit from './src/screens/Edit';
 import Create from './src/screens/Create';
-import { initializeApp } from "firebase/app";
+import React, { useEffect } from 'react';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from './firebase.init';
+import Update from './src/screens/Update';
 
-
-// FIREBASE SETUP-------------------------------------
-const firebaseConfig = {
-  apiKey: "AIzaSyB4x0M8RUuctl0yPZfdCuQfeiaRhwqLbgw",
-  authDomain: "aac-note-app-6d553.firebaseapp.com",
-  projectId: "aac-note-app-6d553",
-  storageBucket: "aac-note-app-6d553.appspot.com",
-  messagingSenderId: "816317025413",
-  appId: "1:816317025413:web:54a9c886a6ccb483152dec"
-};
-
-const app = initializeApp(firebaseConfig);
-
-// FIREBASE SETUP ENDED-----------------------
 
 const AppTheme = {
   ...DefaultTheme,
@@ -35,9 +22,28 @@ const AppTheme = {
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+  const [user, setUser]  = React.useState(false)
+  const [loading, setLoading] = React.useState(true)
 
-  const user = false //NOT Authenticated
 
+
+  useEffect(() => {
+    const authSubcription = onAuthStateChanged(auth, (user) => {
+      if(user){
+        setUser(user)
+        setLoading(false)
+      } else {
+        setUser(null)
+        setLoading(false)
+      }
+    }) 
+    return authSubcription;
+  }, [])
+
+  if(loading){
+    return<Text>Loadinng</Text>
+  }
+  
   return (
    <>
     <NavigationContainer theme={AppTheme}>
@@ -45,9 +51,15 @@ export default function App() {
         {
           user ? (
           <>
-            <Stack.Screen name='Home' component={Home}  />
-            <Stack.Screen name='Edit' component={Edit} />
-            <Stack.Screen name='Create' component={Create} />
+            <Stack.Screen name='Home' options={{headerShown:false}}>
+                {(props) => <Home {...props} user={user} />}
+            </Stack.Screen>
+            <Stack.Screen name='Create' >
+                {(props) => <Create {...props} user={user} />}
+            </Stack.Screen>
+            <Stack.Screen name='Update'>
+              {(props) => <Update  {...props} user={user}/>}
+            </Stack.Screen>
           </>
           ) : (
             <>

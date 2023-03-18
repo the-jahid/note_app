@@ -1,11 +1,21 @@
-import { Image, Pressable, SafeAreaView, StyleSheet, Text, TextInput, View } from 'react-native'
-import React from 'react'
-import Button from '../components/Button'
-import { useNavigation } from '@react-navigation/native'
-import Input from '../components/Input'
+import { Image, Pressable, SafeAreaView, StyleSheet, Text, TextInput, View } from 'react-native';
+import React from 'react';
+import Button from '../components/Button';
+import { useNavigation } from '@react-navigation/native';
+import Input from '../components/Input';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../firebase.init';
 
 const Sign_in = () => {
     const navigation = useNavigation()
+    const [email, setEmail] = React.useState()
+    const [password, setPassword] = React.useState()
+
+    
+    const handleSignin = () => {
+        signInWithEmailAndPassword(auth, email, password)
+       
+    }
 
   return (
     <SafeAreaView style={{flex:1}}>
@@ -15,8 +25,8 @@ const Sign_in = () => {
             Never Forget Your notes
         </Text>
         <View style={{paddingHorizontal:16, paddingVertical:25}}>
-             <Input placeholder={'Email Adress'} />
-            <Input placeholder={'Password'} secureTextEntry />
+             <Input onChangeText={(text) => setEmail(text) } placeholder={'Email Adress'} />
+            <Input onChangeText={(text) => setPassword(text) } placeholder={'Password'} secureTextEntry />
         </View>
 
         <View style={{
@@ -25,7 +35,7 @@ const Sign_in = () => {
             paddingBottom:40,
             alignItems:'center',
           }}>
-            <Button title={"Login"} customStyles={{alignSelf:'center', marginBottom:60}}></Button>
+            <Button onPress={handleSignin} title={"Login"} customStyles={{alignSelf:'center', marginBottom:60}}></Button>
 
             <Pressable onPress={() => navigation.navigate('Signup')} >
                 <Text>Don,t Have An Account? <Text style={{color:'green', fontWeight:'bold'}}>Sign Up</Text></Text>
